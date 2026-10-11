@@ -107,6 +107,30 @@ def test_percentile_threshold_limits_road_texture_noise():
     assert validate_crack_image(filtered, image.shape, CONFIG)
 
 
+def test_adaptive_threshold_measures_full_normal_road_crack():
+    image = np.full((320, 480, 3), 120, dtype=np.uint8)
+    noise = np.random.default_rng(12).normal(0, 6, image.shape[:2]).clip(-25, 25).astype(np.int16)
+    textured = np.clip(image[:, :, 0].astype(np.int16) + noise, 0, 255).astype(np.uint8)
+    image[:] = cv2.cvtColor(textured, cv2.COLOR_GRAY2BGR)
+    cv2.polylines(
+        image,
+        [np.array([[5, 170], [100, 155], [200, 190], [310, 175], [475, 185]])],
+        False,
+        (55, 55, 55),
+        2,
+    )
+
+    config = {**CONFIG, "adaptive_threshold_block_size": 41, "adaptive_threshold_offset": 8}
+    stages = preprocess(image, config)
+    _, _, components = detect_components(stages["binary"], config)
+    filtered = filter_crack_components(components, config)
+    measurements = [measure_component(component, 10) for component in filtered]
+
+    assert filtered
+    assert max(cv2.boundingRect(component["contour"])[0] + cv2.boundingRect(component["contour"])[2] for component in filtered) > 400
+    assert sum(item["skeleton_length_px"] for item in measurements) < 800
+
+
 def test_validation_allows_wide_dominant_road_crack():
     image = np.full((384, 544, 3), 150, dtype=np.uint8)
     cv2.line(image, (80, 310), (160, 280), (80, 80, 80), 8)

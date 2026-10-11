@@ -13,10 +13,21 @@ def preprocess(image, config):
     enhanced = clahe.apply(blurred)
     k = int(config["blackhat_kernel"])
     blackhat = cv2.morphologyEx(enhanced, cv2.MORPH_BLACKHAT, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (k, k)))
-    percentile = config.get("blackhat_threshold_percentile")
-    if percentile is None:
-        _, binary = cv2.threshold(blackhat, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    adaptive_block = config.get("adaptive_threshold_block_size")
+    if adaptive_block:
+        binary = cv2.adaptiveThreshold(
+            gray,
+            255,
+            cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+            cv2.THRESH_BINARY_INV,
+            int(adaptive_block),
+            float(config.get("adaptive_threshold_offset", 8)),
+        )
     else:
-        threshold = float(np.percentile(blackhat, float(percentile)))
-        binary = cv2.inRange(blackhat, threshold, 255)
+        percentile = config.get("blackhat_threshold_percentile")
+        if percentile is None:
+            _, binary = cv2.threshold(blackhat, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+        else:
+            threshold = float(np.percentile(blackhat, float(percentile)))
+            binary = cv2.inRange(blackhat, threshold, 255)
     return {"gray": gray, "blurred": blurred, "clahe": enhanced, "blackhat": blackhat, "binary": binary}
