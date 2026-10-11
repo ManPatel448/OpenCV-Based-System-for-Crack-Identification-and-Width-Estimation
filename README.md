@@ -22,13 +22,15 @@ Edit `.env` with your MongoDB URI and a secret key. The default database is `cra
 
 ### Automatic Windows launch
 
+Double-click [`run_crackscope.bat`](./run_crackscope.bat). It will:
+
 1. Create `.venv` if it does not exist.
 2. Create `.env` from `.env.example` if needed.
 3. Install or update the Python dependencies.
 4. Start Flask on `http://127.0.0.1:5000`.
 5. Wait until Flask responds and open the upload page in your default browser.
 
-Keep the **Crack Detaction Flask Server** console open while using the application. Close that console to stop Flask.
+The launcher enables automatic source reload, so Python changes restart the server without manually closing and starting it again. Keep the **Crack Detaction Flask Server** console open while using the application. Close that console to stop Flask.
 
 ### Manual launch
 
