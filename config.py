@@ -17,6 +17,7 @@ class Config:
     ALLOWED_EXTENSIONS = {"jpg", "jpeg", "jfif", "png"}
     MAX_FILES_PER_ANALYSIS = 20
     MAX_IMAGE_DIMENSION = 8000
+    AUTO_RELOAD = os.getenv("FLASK_AUTO_RELOAD", "1").strip().lower() in {"1", "true", "yes", "on"}
     DEFAULT_PIXELS_PER_MM = 10.0
     PROCESSING = {
         "resize_max_dimension": 1600,
@@ -32,8 +33,8 @@ class Config:
         "maximum_crack_coverage": 0.08,
         "maximum_dispersed_components": 8,
         "minimum_crack_path_alignment": 3.0,
-        "minimum_dominant_crack_area_ratio": 0.002,
-        "minimum_dominant_crack_aspect_ratio": 4.5,
+        "minimum_dominant_crack_area_ratio": 0.003,
+        "minimum_dominant_crack_aspect_ratio": 2.4,
         "minimum_fragmented_crack_alignment": 3.0,
         "maximum_fragmented_crack_coverage": 0.15,
         "severity_thresholds": {

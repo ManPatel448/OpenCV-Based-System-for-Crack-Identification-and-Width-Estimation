@@ -48,7 +48,7 @@ The pipeline resizes while preserving aspect ratio, converts to grayscale, appli
 pytest -q
 ```
 
-If MongoDB is unavailable, the Flask process still starts and keeps newly created results available for the current running session. Configure MongoDB for permanent history and access after restarting Flask.
+If MongoDB is unavailable, the Flask process still starts and keeps newly created results available for the current running session. Configure MongoDB for permanent history. When running `python app.py`, source changes automatically restart Flask; set `FLASK_AUTO_RELOAD=0` to disable this behavior.
 
 ## Troubleshooting
 
