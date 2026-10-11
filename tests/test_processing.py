@@ -91,6 +91,22 @@ def test_filter_keeps_coherent_crack_and_discards_texture_blobs():
     assert validate_crack_image(filtered, image.shape, CONFIG)
 
 
+def test_percentile_threshold_limits_road_texture_noise():
+    image = np.full((320, 480, 3), 120, dtype=np.uint8)
+    noise = np.random.default_rng(7).normal(0, 8, image.shape[:2]).clip(-30, 30).astype(np.int16)
+    textured = np.clip(image[:, :, 0].astype(np.int16) + noise, 0, 255).astype(np.uint8)
+    image[:] = cv2.cvtColor(textured, cv2.COLOR_GRAY2BGR)
+    cv2.polylines(image, [np.array([[10, 190], [100, 170], [190, 205], [300, 185], [470, 195]])], False, (55, 55, 55), 3)
+
+    stages = preprocess(image, {**CONFIG, "blackhat_threshold_percentile": 90})
+    _, _, components = detect_components(stages["binary"], CONFIG)
+    filtered = filter_crack_components(components, CONFIG)
+
+    assert stages["binary"].mean() < 80
+    assert filtered
+    assert validate_crack_image(filtered, image.shape, CONFIG)
+
+
 def test_validation_allows_wide_dominant_road_crack():
     image = np.full((384, 544, 3), 150, dtype=np.uint8)
     cv2.line(image, (80, 310), (160, 280), (80, 80, 80), 8)
