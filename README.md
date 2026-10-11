@@ -22,8 +22,6 @@ Edit `.env` with your MongoDB URI and a secret key. The default database is `cra
 
 ### Automatic Windows launch
 
-Double-click [`run_crackscope.bat`](./run_crackscope.bat). It will:
-
 1. Create `.venv` if it does not exist.
 2. Create `.env` from `.env.example` if needed.
 3. Install or update the Python dependencies.
