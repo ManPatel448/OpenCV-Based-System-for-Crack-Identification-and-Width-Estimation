@@ -38,7 +38,41 @@ def filter_crack_components(components, config):
         principal_ratio = float(singular_values[0] / max(singular_values[1], 1e-6))
         if aspect_ratio >= minimum_aspect or principal_ratio >= minimum_aspect:
             crack_components.append(component)
-    return crack_components
+    return _select_coherent_path(crack_components, config)
+
+
+def _select_coherent_path(components, config):
+    """Discard isolated texture blobs and retain the largest nearby crack path."""
+    if len(components) <= 1:
+        return components
+    link_distance = float(config.get("crack_link_distance_px", 18.0))
+    groups = []
+    remaining = set(range(len(components)))
+    while remaining:
+        group = {remaining.pop()}
+        changed = True
+        while changed:
+            changed = False
+            for index in tuple(remaining):
+                if any(_component_gap(components[index], components[member]) <= link_distance for member in group):
+                    group.add(index)
+                    remaining.remove(index)
+                    changed = True
+        groups.append(group)
+
+    largest_group = max(
+        groups,
+        key=lambda group: (sum(components[index]["area"] for index in group), len(group)),
+    )
+    return [components[index] for index in sorted(largest_group)]
+
+
+def _component_gap(first, second):
+    first_x, first_y, first_width, first_height = cv2.boundingRect(first["contour"])
+    second_x, second_y, second_width, second_height = cv2.boundingRect(second["contour"])
+    horizontal_gap = max(first_x - (second_x + second_width), second_x - (first_x + first_width), 0)
+    vertical_gap = max(first_y - (second_y + second_height), second_y - (first_y + first_height), 0)
+    return float(np.hypot(horizontal_gap, vertical_gap))
 
 
 def validate_crack_image(components, image_shape, config):

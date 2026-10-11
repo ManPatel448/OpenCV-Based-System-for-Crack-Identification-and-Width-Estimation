@@ -29,6 +29,7 @@ class Config:
         "morphology_iterations": 1,
         "minimum_region_area": 30,
         "minimum_crack_aspect_ratio": 3.0,
+        "crack_link_distance_px": 18.0,
         "maximum_crack_components": 60,
         "maximum_crack_coverage": 0.08,
         "maximum_dispersed_components": 8,

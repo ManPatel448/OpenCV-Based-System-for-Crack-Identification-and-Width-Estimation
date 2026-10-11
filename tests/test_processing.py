@@ -76,6 +76,21 @@ def test_validation_allows_dominant_crack_with_texture_fragments():
     assert validate_crack_image(filtered, image.shape, CONFIG)
 
 
+def test_filter_keeps_coherent_crack_and_discards_texture_blobs():
+    image = np.full((220, 220, 3), 150, dtype=np.uint8)
+    for start, end in [((15, 112), (70, 105)), ((74, 104), (130, 94)), ((134, 93), (205, 78))]:
+        cv2.line(image, start, end, (80, 80, 80), 5)
+    for x, y in ((30, 30), (110, 40), (180, 170), (40, 180), (190, 45)):
+        cv2.line(image, (x, y), (x + 7, y + 2), (80, 80, 80), 3)
+
+    stages = preprocess(image, CONFIG)
+    _, _, components = detect_components(stages["binary"], CONFIG)
+    filtered = filter_crack_components(components, {**CONFIG, "crack_link_distance_px": 18})
+
+    assert 1 <= len(filtered) <= 4
+    assert validate_crack_image(filtered, image.shape, CONFIG)
+
+
 def test_validation_allows_wide_dominant_road_crack():
     image = np.full((384, 544, 3), 150, dtype=np.uint8)
     cv2.line(image, (80, 310), (160, 280), (80, 80, 80), 8)
