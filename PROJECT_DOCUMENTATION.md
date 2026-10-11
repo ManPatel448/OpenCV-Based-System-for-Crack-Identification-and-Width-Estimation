@@ -377,7 +377,12 @@ Validation considers:
 - Component alignment.
 - Dominant component area ratio.
 - Dominant component aspect ratio.
-- Fragmented crack alignment.
+- Fragmented crack alignment when no dominant crack path is present.
+
+Texture and pavement images can produce small disconnected regions around a real
+crack. A dominant elongated region is therefore accepted using its own area,
+aspect-ratio, and total-coverage safeguards instead of requiring every texture
+fragment to align with it.
 
 ### Step 8: Measure cracks
 
@@ -852,4 +857,3 @@ Before changing the project:
 - Check that report files are not duplicated in ZIP archives.
 - Check that frontend links match backend routes.
 - Update this document when the architecture or file responsibilities change.
-

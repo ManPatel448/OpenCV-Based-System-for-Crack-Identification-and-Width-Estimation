@@ -33,7 +33,7 @@ class Config:
         "maximum_dispersed_components": 8,
         "minimum_crack_path_alignment": 3.0,
         "minimum_dominant_crack_area_ratio": 0.002,
-        "minimum_dominant_crack_aspect_ratio": 5.0,
+        "minimum_dominant_crack_aspect_ratio": 4.5,
         "minimum_fragmented_crack_alignment": 3.0,
         "maximum_fragmented_crack_coverage": 0.15,
         "severity_thresholds": {

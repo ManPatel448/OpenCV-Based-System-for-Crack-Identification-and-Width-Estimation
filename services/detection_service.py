@@ -64,8 +64,7 @@ def validate_crack_image(components, image_shape, config):
     dominant_area_ratio = dominant["area"] / image_area
     return (
         dominant_area_ratio >= float(config.get("minimum_dominant_crack_area_ratio", 0.002))
-        and dominant_aspect >= float(config.get("minimum_dominant_crack_aspect_ratio", 5.0))
-        and alignment_ratio >= float(config.get("minimum_fragmented_crack_alignment", 3.0))
+        and dominant_aspect >= float(config.get("minimum_dominant_crack_aspect_ratio", 4.5))
         and coverage <= float(config.get("maximum_fragmented_crack_coverage", 0.15))
     )
 

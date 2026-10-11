@@ -62,6 +62,20 @@ def test_validation_allows_fragmented_dominant_crack():
     assert validate_crack_image(filtered, image.shape, {**CONFIG, "maximum_crack_components": 1, "maximum_crack_coverage": 0.001})
 
 
+def test_validation_allows_dominant_crack_with_texture_fragments():
+    image = np.full((220, 220, 3), 150, dtype=np.uint8)
+    cv2.line(image, (20, 112), (200, 92), (80, 80, 80), 4)
+    for x, y in ((30, 30), (75, 180), (130, 45), (180, 165)):
+        cv2.line(image, (x, y), (x + 8, y + 2), (110, 110, 110), 2)
+
+    stages = preprocess(image, CONFIG)
+    _, _, components = detect_components(stages["binary"], CONFIG)
+    filtered = filter_crack_components(components, CONFIG)
+
+    assert filtered
+    assert validate_crack_image(filtered, image.shape, CONFIG)
+
+
 def test_validation_rejects_dispersed_portrait_like_regions():
     image = np.full((220, 220, 3), 210, dtype=np.uint8)
     for x, y in ((30, 30), (110, 35), (185, 45), (40, 150), (120, 140), (195, 165)):
