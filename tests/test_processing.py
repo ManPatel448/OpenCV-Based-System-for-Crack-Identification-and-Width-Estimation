@@ -131,6 +131,19 @@ def test_adaptive_threshold_measures_full_normal_road_crack():
     assert sum(item["skeleton_length_px"] for item in measurements) < 800
 
 
+def test_width_measurement_uses_stable_centerline_statistics():
+    image = np.full((220, 220, 3), 210, dtype=np.uint8)
+    cv2.line(image, (25, 110), (195, 110), (20, 20, 20), 4)
+    stages = preprocess(image, CONFIG)
+    _, _, components = detect_components(stages["binary"], CONFIG)
+
+    measurement = measure_component(components[0], 10)
+
+    assert 5 <= measurement["mean_width_px"] <= 7
+    assert measurement["max_width_px"] >= measurement["mean_width_px"]
+    assert measurement["max_width_px"] < 8
+
+
 def test_validation_allows_wide_dominant_road_crack():
     image = np.full((384, 544, 3), 150, dtype=np.uint8)
     cv2.line(image, (80, 310), (160, 280), (80, 80, 80), 8)

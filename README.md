@@ -42,7 +42,7 @@ Open `http://127.0.0.1:5000`. Use **Upload** to select one or more JPG, JPEG, JF
 
 ## Processing workflow
 
-The pipeline resizes while preserving aspect ratio, converts to grayscale, applies Gaussian blur and CLAHE, computes a BlackHat transform, uses adaptive local thresholding to preserve normal crack lines without turning pavement texture into foreground, cleans morphology, filters connected components, skeletonizes each candidate, estimates skeleton length and distance-transform width, and draws annotated results. Synthetic tests exercise this pipeline; real photographs still require domain validation and suitable calibration.
+The pipeline resizes while preserving aspect ratio, converts to grayscale, applies Gaussian blur and CLAHE, computes a BlackHat transform, uses adaptive local thresholding to preserve normal crack lines without turning pavement texture into foreground, cleans morphology, filters connected components, skeletonizes each candidate, estimates skeleton length and distance-transform width, and draws annotated results. Width is reported from stable centerline samples: the median is used for mean width and the 95th percentile is used for maximum width, preventing a branch or segmentation blob from dominating the result. Synthetic tests exercise this pipeline; real photographs still require domain validation and suitable calibration.
 
 ## Tests
 

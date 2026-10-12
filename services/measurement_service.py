@@ -17,21 +17,39 @@ def _skeleton_length(skeleton):
     return length
 
 
+def _robust_widths(distance, skeleton_points):
+    """Return centerline widths while ignoring junction and mask-edge outliers."""
+    if not len(skeleton_points):
+        return np.array([], dtype=float)
+
+    points = []
+    for y, x in skeleton_points:
+        neighbors = skeleton_points[
+            np.sum((skeleton_points - np.array([y, x])) ** 2, axis=1) <= 2
+        ]
+        if len(neighbors) <= 3:
+            points.append((y, x))
+
+    sample_points = points or [tuple(point) for point in skeleton_points]
+    return np.array([distance[y, x] * 2 for y, x in sample_points], dtype=float)
+
+
 def measure_component(component, pixels_per_mm=None, thresholds=None):
     mask = component["mask"] > 0
     skeleton = skeletonize(mask)
     distance = cv2.distanceTransform(component["mask"], cv2.DIST_L2, 5)
     skeleton_points = np.argwhere(skeleton)
-    interior = []
-    for y, x in skeleton_points:
-        neighbors = skeleton[max(0, y - 1):y + 2, max(0, x - 1):x + 2].sum() - 1
-        if neighbors == 2:
-            interior.append((y, x))
-    sample_points = interior or [tuple(point) for point in skeleton_points]
-    widths = np.array([distance[y, x] * 2 for y, x in sample_points], dtype=float)
+    sample_points = [
+        tuple(point)
+        for point in skeleton_points
+        if skeleton[max(0, point[0] - 1):point[0] + 2, max(0, point[1] - 1):point[1] + 2].sum() - 1 == 2
+    ] or [tuple(point) for point in skeleton_points]
+    widths = _robust_widths(distance, skeleton_points)
     if widths.size:
-        mean_width = float(np.mean(widths))
-        max_width = float(np.max(widths))
+        # Median and P95 are stable when a crack joins another region or ends
+        # in a widened segmentation blob.
+        mean_width = float(np.median(widths))
+        max_width = float(np.percentile(widths, 95))
     else:
         mean_width = max_width = 0.0
     length = _skeleton_length(skeleton)
