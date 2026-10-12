@@ -26,7 +26,7 @@ class Config:
         "clahe_tile_grid": 8,
         "blackhat_kernel": 21,
         "adaptive_threshold_block_size": 41,
-        "adaptive_threshold_offset": 8,
+        "adaptive_threshold_offset": 16,
         "morphology_kernel": 3,
         "morphology_iterations": 1,
         "minimum_region_area": 30,

@@ -144,6 +144,23 @@ def test_width_measurement_uses_stable_centerline_statistics():
     assert measurement["max_width_px"] < 8
 
 
+def test_multiple_separate_crack_networks_are_measured_independently():
+    image = np.full((360, 480, 3), 150, dtype=np.uint8)
+    cv2.polylines(image, [np.array([[20, 70], [90, 95], [160, 55]])], False, (55, 55, 55), 4)
+    cv2.polylines(image, [np.array([[300, 80], [360, 130], [450, 105]])], False, (55, 55, 55), 4)
+    cv2.polylines(image, [np.array([[30, 280], [110, 245], [180, 300]])], False, (55, 55, 55), 4)
+
+    config = {**CONFIG, "adaptive_threshold_block_size": 41, "adaptive_threshold_offset": 16}
+    stages = preprocess(image, config)
+    _, _, components = detect_components(stages["binary"], config)
+    filtered = filter_crack_components(components, config)
+    measurements = [measure_component(component, 10) for component in filtered]
+
+    assert len(filtered) >= 3
+    assert all(item["skeleton_length_px"] > 30 for item in measurements)
+    assert validate_crack_image(filtered, image.shape, config)
+
+
 def test_validation_allows_wide_dominant_road_crack():
     image = np.full((384, 544, 3), 150, dtype=np.uint8)
     cv2.line(image, (80, 310), (160, 280), (80, 80, 80), 8)

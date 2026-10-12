@@ -42,7 +42,7 @@ def filter_crack_components(components, config):
 
 
 def _select_coherent_path(components, config):
-    """Discard isolated texture blobs and retain the largest nearby crack path."""
+    """Discard isolated texture blobs while preserving separate crack networks."""
     if len(components) <= 1:
         return components
     link_distance = float(config.get("crack_link_distance_px", 18.0))
@@ -60,11 +60,26 @@ def _select_coherent_path(components, config):
                     changed = True
         groups.append(group)
 
-    largest_group = max(
-        groups,
-        key=lambda group: (sum(components[index]["area"] for index in group), len(group)),
-    )
-    return [components[index] for index in sorted(largest_group)]
+    group_areas = [
+        sum(components[index]["area"] for index in group)
+        for group in groups
+    ]
+    largest_area = max(group_areas)
+    minimum_group_area = float(config.get("minimum_crack_group_area", 80.0))
+    retained_groups = [
+        group for group, area in zip(groups, group_areas)
+        if area >= minimum_group_area and (
+            area >= largest_area * float(config.get("minimum_crack_group_ratio", 0.08))
+            or (len(group) >= 2 and area >= minimum_group_area * 2)
+        )
+    ]
+    if not retained_groups:
+        retained_groups = [groups[group_areas.index(largest_area)]]
+    return [
+        components[index]
+        for group in retained_groups
+        for index in sorted(group)
+    ]
 
 
 def _component_gap(first, second):
