@@ -14,4 +14,4 @@ storage/*
 .vscode/
 .DS_Store
 Thumbs.db
-.bat
+run_crackscope.bat.bat
