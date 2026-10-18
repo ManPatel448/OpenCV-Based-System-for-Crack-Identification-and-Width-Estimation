@@ -3,6 +3,7 @@
 __pycache__/
 *.py[cod]
 .pytest_cache/
+.bat/
 
 # Runtime-generated uploads, reports, and analysis artifacts.
 storage/*
